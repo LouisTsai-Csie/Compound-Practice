@@ -57,8 +57,12 @@ contract CounterTest is Test {
         vm.startPrank(owner);
         underlyingToken = new UnderlyingToken(initialSupply, name, symbol);
         comptroller = new Comptroller();
+        unitroller = new Unitroller();
+        unitroller._setPendingImplementation(address(comptroller));
+        comptroller._become(unitroller);
+
         whitePaperInterestRateModel = new WhitePaperInterestRateModel(baseRatePerYear, multiplierPerYear);
-        initialExchangeRateMantissa = 10 * (underlyingToken.decimals() - 8);
+        initialExchangeRateMantissa = 10 ** (underlyingToken.decimals() - 18);
         delegate = new CErc20Delegate();
         implementation = address(delegate);
 
@@ -77,8 +81,6 @@ contract CounterTest is Test {
 
         simplePriceOracle = new SimplePriceOracle();
         comptroller._setPriceOracle(PriceOracle(address(simplePriceOracle)));
-
-        unitroller = new Unitroller();
 
         comptroller._supportMarket(CToken(address(delegator)));
 
